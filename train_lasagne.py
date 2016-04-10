@@ -1,6 +1,5 @@
-import loader
-
 from __future__ import print_function
+import loader
 
 import sys
 import os
@@ -11,9 +10,9 @@ import theano.tensor as T
 
 import lasagne
 
-load_method = LoadMethod(paths['test'], labels_train)
-sample_gen = SampleGenerator(load_method, shuffle=False, repeat=False)
-chunk_gen = ChunkGenerator(sample_gen, chunk_size=64, labels=True)
+load_method = loader.LoadMethod(loader.paths['train'], loader.labels_train)
+sample_gen = loader.SampleGenerator(load_method, shuffle=True, repeat=True)
+chunk_gen = loader.ChunkGenerator(sample_gen, chunk_size=64, labels=True)
 
 def build_cnn(input_var=None):
     # As a third model, we'll create a CNN of two convolution + pooling stages
@@ -109,3 +108,5 @@ def main(num_epochs=500):
         print("  training loss:\t\t{:.6f}".format(train_err / train_batches))
 
 
+if __name__ == '__main__':
+    main()
