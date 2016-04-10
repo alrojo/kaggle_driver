@@ -89,23 +89,20 @@ def main(num_epochs=500):
     val_fn = theano.function([input_var, target_var], [test_loss, test_acc])
 
     print("Starting training...")
+    epoch = 0
     # We iterate over epochs:
-    for epoch in range(num_epochs):
-        # In each epoch, we do a full pass over the training data:
-        train_err = 0
-        train_batches = 0
+    for chunk in chunk_gen.gen_chunk():
+        inputs = chunk['X']
+        targets = chunk['t']
         start_time = time.time()
-        for chunk in chunk_gen.gen_chunk():
-            inputs = chunk['X']
-            targets = chunk['t']
-            train_err += train_fn(inputs, targets)
-            train_batches += 1
+        train_err = train_fn(inputs, targets)
+        epoch += 1
 
 
         # Then we print the results for this epoch:
         print("Epoch {} of {} took {:.3f}s".format(
             epoch + 1, num_epochs, time.time() - start_time))
-        print("  training loss:\t\t{:.6f}".format(train_err / train_batches))
+        print("  training loss:\t\t{:.6f}".format(train_err))
 
 
 if __name__ == '__main__':
