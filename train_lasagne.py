@@ -100,9 +100,8 @@ def main(num_epochs=500):
 
 
         # Then we print the results for this epoch:
-        print("Epoch {} of {} took {:.3f}s".format(
-            epoch + 1, num_epochs, time.time() - start_time))
-        print("  training loss:\t\t{:.6f}".format(train_err))
+        print("Chunk %d: %.3f" % epoch + 1, time.time() - start_time)
+        print("  training loss:\t\t%.6f" % train_err)
 
 
 if __name__ == '__main__':
