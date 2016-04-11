@@ -1,9 +1,10 @@
+
+import skimage.io
+import skimage.transform
 import glob
 
 import numpy as np
 import os
-import skimage.transform
-import skimage.io
 
 import utils
 
@@ -63,7 +64,7 @@ class SampleGenerator(object):
 
 
 def preprocess(img):
-    img = img[:, 100:] / 255.
+    img = img[:, 100:]
     img = skimage.transform.resize(img, (96, 96))
     return img
 
@@ -108,12 +109,13 @@ class ChunkGenerator(object):
 
 
 if __name__ == '__main__':
-    load_method = LoadMethod(paths['test'], labels_train)
-    sample_gen = SampleGenerator(load_method, shuffle=False, repeat=False)
+    load_method = LoadMethod(paths['train'], labels_train)
+    sample_gen = SampleGenerator(load_method, shuffle=True, repeat=True)
     chunk_gen = ChunkGenerator(sample_gen, chunk_size=64, labels=True)
-    for chunk in chunk_gen.gen_chunk():
-        #skimage.io.imshow(chunk['X'][0, :, :, 0])
-        #skimage.io.show()
-        print(chunk['X'].shape)
-        print(chunk['t'].shape)
-        assert False
+    for idx, chunk in enumerate(chunk_gen.gen_chunk()):
+        if idx == 5:
+            for i in range(64):
+                skimage.io.imshow(chunk['X'][i, 0, :, :])
+                skimage.io.show()
+                print(chunk['t'][i])
+            assert False
