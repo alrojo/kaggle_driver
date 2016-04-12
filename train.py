@@ -80,7 +80,7 @@ class Trainer:
         #self.name = config.Model.name
         self.log_freq = config.Model.log_freq
 #        self.save_freq = config.Model.save_freq
-#        self.valid_freq = config.Model.valid_freq
+        self.valid_freq = config.Model.valid_freq
         self.iterations = config.Model.iterations
 #        self.tb_log_freq = config.Model.tb_log_freq
 
@@ -99,11 +99,11 @@ class Trainer:
             loader.labels_train)
         print('loading split ...')
         
-        #split = pickle.load(open(DEFAULT_VALIDATION_SPLIT, 'br'))
+        split = pickle.load(open(DEFAULT_VALIDATION_SPLIT, 'br'))
         print('making sample gen ...')
         self.sample_generator['train'] = loader.SampleGenerator(
                     self.load_method['train'],
-                    #permutation=split['indices_train'],
+#                    permutation=split['indices_train'],
                     shuffle=True,
                     repeat=True)
 
@@ -140,8 +140,8 @@ class Trainer:
 
     def train(self):
         print("## INITIATE TRAIN")
-
-        with tf.Session() as sess:
+        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.333)
+        with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
             saver = tf.train.Saver()
             # restore only if files exist
 #            if USE_LOGGED_WEIGHTS and os.path.exists(self.named_checkpoint_path) and os.listdir(self.named_checkpoint_path):
