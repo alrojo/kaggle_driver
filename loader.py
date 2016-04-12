@@ -2,11 +2,14 @@
 import skimage.io
 import skimage.transform
 import glob
+import pickle
 
 import numpy as np
 import os
 
 import utils
+
+DEFAULT_VALIDATION_SPLIT = './data/validation_split_v1.pkl'
 
 paths_train = glob.glob("data/train/*/*")
 paths_train.sort()
@@ -110,7 +113,10 @@ class ChunkGenerator(object):
 
 if __name__ == '__main__':
     load_method = LoadMethod(paths['train'], labels_train)
-    sample_gen = SampleGenerator(load_method, shuffle=True, repeat=True)
+    split = pickle.load(open(DEFAULT_VALIDATION_SPLIT, 'br'))
+    print(split['indices_train'])
+    print(split['indices_valid'])
+    sample_gen = SampleGenerator(load_method, permutation = split['indices_train'], shuffle=True, repeat=True)
     chunk_gen = ChunkGenerator(sample_gen, chunk_size=64, labels=True)
     for idx, chunk in enumerate(chunk_gen.gen_chunk()):
         if idx == 5:

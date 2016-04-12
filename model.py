@@ -9,7 +9,7 @@ class Model(object):
     visualize_freq = 1000  # Visualize training X, y, and t. (0 to disable.)
     log_freq = 1  # How often to print updates during training.
     save_freq = 0  # How often to save checkpoints. (0 to disable.)
-    valid_freq = 0#100  # How often to validate.
+    valid_freq = 50#100  # How often to validate.
     iterations = 32000  # How many iterations to train for before stopping.
     tb_log_freq = 100  # How often to save logs for TensorBoard
 

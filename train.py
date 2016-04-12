@@ -104,19 +104,19 @@ class Trainer:
         print('making sample gen ...')
         self.sample_generator['train'] = loader.SampleGenerator(
                     self.load_method['train'],
-#                    permutation=split['indices_train'],
+                    permutation=split['indices_train'],
                     shuffle=True,
                     repeat=True)
 
         # data loader for eval
         # notice repeat = false
-#        self.eval_sample_generator = {
-#            'train': loader.SampleGenerator(
-#                self.load_method['train'],
-#                permutation=split['indices_train']),
-#            'validation': loader.SampleGenerator(
-#                self.load_method['train'],  # TODO: is this the correct load method?
-#                permutation=split['indices_valid'])}
+        self.eval_sample_generator = {
+            'train': loader.SampleGenerator(
+                self.load_method['train'],
+                permutation=split['indices_train']),
+            'validation': loader.SampleGenerator(
+                self.load_method['train'],  # TODO: is this the correct load method?
+                permutation=split['indices_valid'])}
 
     def setup_chunk_generator(self):
         print('making chunk gen ...')
@@ -128,16 +128,16 @@ class Trainer:
 
         # If we have a validation frequency
         # setup needed evaluation generators
-#        if self.valid_freq:
-#            self.eval_chunk_generator = {
-#                'train': loader.ChunkGenerator(
-#                    self.eval_sample_generator['train'],
-#                    chunk_size = self.chunk_size,
-#                    labels = True),
-#                'validation': loader.ChunkGenerator(
-#                    self.eval_sample_generator['validation'],
-#                    chunk_size=self.chunk_size,
-#                    labels = True)}
+        if self.valid_freq:
+            self.eval_chunk_generator = {
+                'train': loader.ChunkGenerator(
+                    self.eval_sample_generator['train'],
+                    chunk_size = self.chunk_size,
+                    labels = True),
+                'validation': loader.ChunkGenerator(
+                    self.eval_sample_generator['validation'],
+                    chunk_size=self.chunk_size,
+                    labels = True)}
 
     def train(self):
         print("## INITIATE TRAIN")
@@ -161,8 +161,8 @@ class Trainer:
             print("## TRAINING...")
             combined_time = 0.0  # total time for each print
             for i, t_chunk in enumerate(self.chunk_generator['train'].gen_chunk()):
-#                if self.valid_freq and i % self.valid_freq == 0:
-#                    self.validate(sess)
+                if self.valid_freq and i % self.valid_freq == 0:
+                    self.validate(sess)
 
                 ## TRAIN START ##
                 fetches = [
@@ -224,25 +224,25 @@ class Trainer:
 
         return (res, elapsed)
 
-#    def validate(self, sess):
-#        print("## VALIDATING")
-#        accuracies = []
-#        valid_ys = []
-#        valid_ts = []
-#        for v_chunk in self.eval_chunk_generator['validation'].gen_chunk():
-#            fetches = [self.model.accuracy, self.model.ys]
+    def validate(self, sess):
+        print("## VALIDATING")
+        accuracies = []
+        valid_ys = []
+        valid_ts = []
+        for v_chunk in self.eval_chunk_generator['validation'].gen_chunk():
+            fetches = [self.model.accuracy]
 
-#            res, time = self.perform_iteration(
-#                sess,
-#                fetches,
-#                feed_dict=None,
-#                chunk=v_chunk)
+            res, time = self.perform_iteration(
+                sess,
+                fetches,
+                feed_dict=None,
+                chunk=v_chunk)
 
             # TODO: accuracies should be weighted by batch sizes
             # before averaging
 #            valid_ys.append(res[1])
 #            valid_ts.append(v_chunk['t_encoded'])
-#            accuracies.append(res[0])
+            accuracies.append(res[0])
 
 #        valid_ys = np.concatenate(valid_ys, axis=0)
 #        valid_ts = np.concatenate(valid_ts, axis=0)
@@ -253,8 +253,8 @@ class Trainer:
 #                                              self.alphabet)
 
         # accuracy
-#        valid_acc = np.mean(accuracies)
-#        print('\t%s%.2f%%' % ('accuracy:'.ljust(25), (valid_acc * 100)))
+        valid_acc = np.mean(accuracies)
+        print('\t%s%.2f%%' % ('accuracy:'.ljust(25), (valid_acc * 100)))
 
 #        if self.named_log_path and os.path.exists(self.named_log_path):
 #            feed_dict = {

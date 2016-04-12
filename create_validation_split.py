@@ -5,6 +5,7 @@ import pickle as pickle
 import sklearn.cross_validation
 import glob
 import pandas as pd
+import os
 
 TARGET_PATH = "./data/validation_split_v1.pkl"
 
@@ -13,11 +14,9 @@ drivers = list(set(driver_list['subject']))
 drivers_valid = ['p002', 'p045']
 drivers_valid_p = driver_list['subject'].isin(drivers_valid)
 base_valid = [img for p, img in zip(list(drivers_valid_p), list(driver_list['img'])) if p]
-
-paths_train = glob.glob('train/*/*')
+paths_train = glob.glob('data/train/*/*')
 paths_train.sort()
 base_train = [os.path.basename(p) for p in paths_train]
-
 indices_valid = []
 indices_train = []
 for idx, t in enumerate(base_train):
