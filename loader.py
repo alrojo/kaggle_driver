@@ -81,7 +81,7 @@ class ChunkGenerator(object):
         self.chunk = dict()
         c_size = len(self.samples) # might < chunk_size !!!
         assert c_size <= self.chunk_size # can only be smaller
-        self.chunk['X'] = np.zeros((c_size, 1, self.p_x, self.p_y), 'float32')
+        self.chunk['X'] = np.zeros((c_size, self.p_x, self.p_y, 1), 'float32')
         if self.labels:
             self.chunk['t'] = np.zeros((c_size,), 'int32')
         for idx, sample in enumerate(self.samples):
@@ -90,7 +90,7 @@ class ChunkGenerator(object):
             else:
                 X = sample
             X = preprocess(X)
-            self.chunk['X'][idx, 0, :, :] = X
+            self.chunk['X'][idx, :, :, 0] = X
             if self.labels:
                 self.chunk['t'][idx] = t
         return self.chunk

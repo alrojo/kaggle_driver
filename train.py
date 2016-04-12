@@ -1,3 +1,5 @@
+
+import loader
 import time
 import click
 import os
@@ -7,7 +9,6 @@ from warnings import warn
 import importlib
 import pickle
 
-import loader
 
 from model import Model
 import utils #from utils import basic as utils
