@@ -14,4 +14,4 @@ class Model(model.Model):
     script and model architecture.
     """
     # overwrite config
-    pass
+    name = 'test'

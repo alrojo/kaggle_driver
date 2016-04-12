@@ -30,32 +30,32 @@ class Trainer:
         self.loader = loader
 
         self.setup_model(config_name)
-        #self.setup_reload_path()
+        self.setup_reload_path()
         self.setup_loader()
         self.setup_chunk_generator()
 
         self.train()
 
-#    def setup_reload_path(self):
-#        self.named_checkpoint_path = self.named_log_path = self.checkpoint_file_path = None
-#        if self.name:
-#            USE_LOGGED_WEIGHTS = True
+    def setup_reload_path(self):
+        self.named_checkpoint_path = self.named_log_path = self.checkpoint_file_path = None
+        if self.name:
+            USE_LOGGED_WEIGHTS = True
 
-#            local_folder_path           = os.path.join(SAVER_FOLDER_PATH['base'], self.name)
-#            self.named_checkpoint_path  = os.path.join(local_folder_path, SAVER_FOLDER_PATH['checkpoint'])
-#            self.named_log_path         = os.path.join(local_folder_path, SAVER_FOLDER_PATH['log'])
+            local_folder_path           = os.path.join(SAVER_FOLDER_PATH['base'], self.name)
+            self.named_checkpoint_path  = os.path.join(local_folder_path, SAVER_FOLDER_PATH['checkpoint'])
+            self.named_log_path         = os.path.join(local_folder_path, SAVER_FOLDER_PATH['log'])
 
-#            self.checkpoint_file_path   = os.path.join(self.named_checkpoint_path, 'checkpoint')
+            self.checkpoint_file_path   = os.path.join(self.named_checkpoint_path, 'checkpoint')
 
             # make sure checkpoint folder exists
-#            if not os.path.exists(self.named_checkpoint_path):
-#                os.makedirs(self.named_checkpoint_path)
-#            if not os.path.exists(self.named_log_path):
-#                os.makedirs(self.named_log_path)
+            if not os.path.exists(self.named_checkpoint_path):
+                os.makedirs(self.named_checkpoint_path)
+            if not os.path.exists(self.named_log_path):
+                os.makedirs(self.named_log_path)
 
-#            print("Will read and write from '%s' (checkpoints and logs)" % (local_folder_path))
-#            if not self.save_freq:
-#                warn("'save_freq' is 0, won't save checkpoints", UserWarning)
+            print("Will read and write from '%s' (checkpoints and logs)" % (local_folder_path))
+            if not self.save_freq:
+                warn("'save_freq' is 0, won't save checkpoints", UserWarning)
 
     def setup_placeholders(self):
         # hacked shapes
@@ -78,12 +78,12 @@ class Trainer:
 
         # copy settings that affect the training script
         self.chunk_size = config.Model.chunk_size
-        #self.name = config.Model.name
+        self.name = config.Model.name
         self.log_freq = config.Model.log_freq
-#        self.save_freq = config.Model.save_freq
+        self.save_freq = config.Model.save_freq
         self.valid_freq = config.Model.valid_freq
         self.iterations = config.Model.iterations
-#        self.tb_log_freq = config.Model.tb_log_freq
+        self.tb_log_freq = config.Model.tb_log_freq
 
         # Create placeholders and construct model
         self.setup_placeholders()
@@ -145,11 +145,11 @@ class Trainer:
         with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
             saver = tf.train.Saver()
             # restore only if files exist
-#            if USE_LOGGED_WEIGHTS and os.path.exists(self.named_checkpoint_path) and os.listdir(self.named_checkpoint_path):
-#                latest_checkpoint = tf.train.latest_checkpoint(self.named_checkpoint_path)
-#                saver.restore(sess, latest_checkpoint)
-#            else:
-            tf.initialize_all_variables().run()
+            if USE_LOGGED_WEIGHTS and os.path.exists(self.named_checkpoint_path) and os.listdir(self.named_checkpoint_path):
+                latest_checkpoint = tf.train.latest_checkpoint(self.named_checkpoint_path)
+                saver.restore(sess, latest_checkpoint)
+            else:
+                tf.initialize_all_variables().run()
 
             # prepare summary operations and summary writer
 #            summaries = tf.merge_all_summaries()
@@ -183,8 +183,8 @@ class Trainer:
 #                if self.named_log_path and os.path.exists(self.named_log_path) and i % self.tb_log_freq == 0:
 #                    writer.add_summary(res[2], i)
 
-#                if self.save_freq and i and i % self.save_freq == 0 and self.named_checkpoint_path:
-#                    saver.save(sess, self.checkpoint_file_path, self.model.global_step)
+                if self.save_freq and i and i % self.save_freq == 0 and self.named_checkpoint_path:
+                    saver.save(sess, self.checkpoint_file_path, self.model.global_step)
 
                 if self.log_freq and i % self.log_freq == 0:
                     chunk_acc = res[2]

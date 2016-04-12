@@ -8,7 +8,7 @@ class Model(object):
     name = None  # (string) For saving logs and checkpoints. (None to disable.)
     visualize_freq = 1000  # Visualize training X, y, and t. (0 to disable.)
     log_freq = 1  # How often to print updates during training.
-    save_freq = 0  # How often to save checkpoints. (0 to disable.)
+    save_freq = 100  # How often to save checkpoints. (0 to disable.)
     valid_freq = 50#100  # How often to validate.
     iterations = 32000  # How many iterations to train for before stopping.
     tb_log_freq = 100  # How often to save logs for TensorBoard
@@ -115,7 +115,7 @@ class Model(object):
     def training(self):
         print('Building model training')
 
-#        self.global_step = tf.Variable(0, name='global_step', trainable=False)
+        self.global_step = tf.Variable(0, name='global_step', trainable=False)
         optimizer = tf.train.AdamOptimizer(self.learning_rate)
 
         # Do gradient clipping
@@ -140,4 +140,4 @@ class Model(object):
         # make training op for applying the gradients
         #self.train_op = optimizer.apply_gradients(clipped_grads_and_vars,
         #                                          global_step=self.global_step)
-        self.train_op = optimizer.minimize(self.loss)
+        self.train_op = optimizer.minimize(self.loss, global_step=self.global_step)
