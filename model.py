@@ -19,13 +19,14 @@ class Model(object):
 #    reg_scale = 0.0001
 #    clip_norm = 1
 
-    def __init__(self, Xs, ts):
+    def __init__(self, Xs, ts=None):
         self.Xs, self.ts = Xs, ts
 
         self.build()
-        self.build_loss()
 #        self.build_prediction()
-        self.training()
+        if self.ts is not None:
+            self.build_loss()
+            self.training()
 
     def build(self):
         print('building model ...')
@@ -77,6 +78,8 @@ class Model(object):
 
         # for debugging network (should write this outside of build)
         self.out_tensor = logits
+
+        self.out_tensor_softmax = tf.nn.softmax(logits)
         # add TensorBoard summaries for all variables
 #        tf.contrib.layers.summarize_variables()
 

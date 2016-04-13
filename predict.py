@@ -3,23 +3,29 @@ import time
 import os
 import tensorflow as tf
 import importlib
+import numpy as np
 
 ### THESE VARS SHOULD BE SET IN ANOTHER PLACE
 config_name = 'test'
-checkpoint_name = 'checkpoints-201'
+checkpoint_name = 'checkpoint-201'
 ### SETUP MODEL
 chosen_checkpoint = 'train/' + config_name + '/checkpoints/' + checkpoint_name
 config_path = 'configurations.' + config_name
-predictions_path = 'predictions/' + config_name + '/' + checkpoint_name + '.npy'
+predictions_path = 'predictions/' + config_name + '-' + checkpoint_name + '.npy'
 config = importlib.import_module(config_path)
+
+print('config_name: \t\t%s' % config_name)
+print('chosen_checkpoint: \t%s' % chosen_checkpoint)
+print('config_path: \t\t%s' % config_path)
+print('predictions_path: \t%s' % predictions_path)
+
 # copy settings that affect the training script
 chunk_size = config.Model.chunk_size
 name = config.Model.name
 Xs = tf.placeholder(tf.float32,   shape=[None, 96, 96, 1], name='X_input')
 
 model = config.Model(
-    Xs=Xs,
-    ts=ts)
+    Xs=Xs)
 
 load_method = dict()
 sample_generator = dict()
@@ -35,46 +41,12 @@ sample_generator['test'] = loader.SampleGenerator(
     repeat=False)
 
 print('making chunk gen ...')
-chunk_generator['train'] = loader.ChunkGenerator(
-    sample_generator['train'],
-    chunk_size=self.chunk_size,
-    labels=True)
+chunk_generator['test'] = loader.ChunkGenerator(
+    sample_generator['test'],
+    chunk_size=chunk_size,
+    labels=False)
 
-print("## INITIATE PREDICTION")
-predictions = []
-gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.333)
-with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
-    saver = tf.train.Saver()
-    print('restoring weights ...')
-    # restore only if files exist
-    saver.restore(sess, chosen_checkpoint)
-
-    print("## PREDICTING...")
-    combined_time = 0.0  # total time for each print
-    for i, t_chunk in enumerate(self.chunk_generator['train'].gen_chunk()):
-
-        if i % 100 == 0:
-            print('%d: iteration' % i)        
-        ## TRAIN START ##
-        fetches = [
-            self.model.ys]
-#           summaries,
-
-        res, elapsed_it = self.perform_iteration(
-            sess,
-            fetches,
-            chunk=t_chunk)
-        ## TRAIN END ##
-        prediction = res[0]
-        print(type(prediction))
-        print(len(prediction))
-        print(prediction.shape)
-        predictions.append(prediction)
-        combined_time += elapsed_it
-predictions = np.concatenate(predictions, axis=0)
-np.save(predictions_path, predictions
-
-def perform_iteration(self, sess, fetches, feed_dict=None, chunk=None):
+def perform_iteration(sess, fetches, feed_dict=None, chunk=None):
     """ Performs one iteration/run.
 
         Returns tuple containing result and elapsed iteration time.
@@ -93,10 +65,40 @@ def perform_iteration(self, sess, fetches, feed_dict=None, chunk=None):
 
     if feed_dict is None and chunk is not None:
         feed_dict = {
-            self.Xs:     chunk['X']}
+            Xs:     chunk['X']}
 
         start_time = time.time()
         res = sess.run(fetches, feed_dict=feed_dict)
         elapsed = time.time() - start_time
 
-        return (res, elapsed)
+    return (res, elapsed)
+print("## INITIATE PREDICTION")
+predictions = []
+gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.333)
+with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
+    saver = tf.train.Saver()
+    print('restoring weights ...')
+    # restore only if files exist
+    saver.restore(sess, chosen_checkpoint)
+
+    print("## PREDICTING...")
+    combined_time = 0.0  # total time for each print
+    for i, t_chunk in enumerate(chunk_generator['test'].gen_chunk()):
+
+        if i % 100 == 0:
+            print('%d: iteration' % i)        
+        ## TRAIN START ##
+        fetches = [
+            model.out_tensor_softmax]
+#           summaries,
+
+        res, elapsed_it = perform_iteration(
+            sess,
+            fetches,
+            chunk=t_chunk)
+        ## TRAIN END ##
+        prediction = res[0]
+        predictions.append(prediction)
+        combined_time += elapsed_it
+predictions = np.concatenate(predictions, axis=0)
+np.save(predictions_path, predictions)
