@@ -7,9 +7,10 @@ import pandas as pd
 import loader
 
 config_name = 'test'
-predictions_path = 'predictions/' + config_name + ''
+checkpoint_name = 'checkpoint-201.npy'
+predictions_path = 'predictions/' + config_name + '-' + checkpoint_name 
 filename = os.path.splitext(os.path.basename(predictions_path))[0]
-target_paths = 'submissions/%s.csv' % filename
+target_path = 'submissions/%s.csv' % filename
 
 print('config_name: \t\t%s' % config_name)
 print('predictions_path: \t%s' % predictions_path)
@@ -22,7 +23,7 @@ predictions = np.load(predictions_path)
 
 print('generating csv ...')
 image_filenames = [os.path.basename(path) for path in loader.paths['test']]
-df = pd.DataFrame(predictions, columns=data.class_names, index=image_filenames)
+df = pd.DataFrame(predictions, columns=loader.class_names, index=image_filenames)
 df.index.name = 'img'
 df = df[header]
 df.to_csv(target_path)

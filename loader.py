@@ -9,6 +9,11 @@ import os
 
 import utils
 
+directories = glob.glob("data/train/*")
+class_names = [os.path.basename(d) for d in directories]
+class_names.sort()
+num_classes = len(class_names)
+
 DEFAULT_VALIDATION_SPLIT = './data/validation_split_v1.pkl'
 
 paths_train = glob.glob("data/train/*/*")
